@@ -1,0 +1,1384 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hardik AI — Your Personal Coder</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+/* --- COPYRIGHT-FREE MATRICES & RESET --- */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f5f0e8; --bg2: #ede8df; --surface: #faf7f2; --surface2: #f0ebe1;
+  --border: rgba(180,165,140,.28); --border-s: rgba(160,145,120,.4);
+  --text: #2c2416; --t2: #6b5e4a; --t3: #9e8e78; --t4: #c4b49e;
+  --accent: #b8733e; --asoft: rgba(184,115,62,.11); --aglow: rgba(184,115,62,.22);
+  --ubg: #2c2416; --utext: #f5f0e8; --aibg: #faf7f2;
+  --sh1: 0 2px 10px rgba(44,36,22,.06); --sh2: 0 8px 30px rgba(44,36,22,.1); --sh3: 0 20px 60px rgba(44,36,22,.15);
+  --r: 18px; --sans: 'DM Sans', sans-serif;
+  --sidebar: 280px;
+}
+[data-theme="dusk"] {
+  --bg: #181310; --bg2: #211c14; --surface: #1e1912; --surface2: #272118;
+  --border: rgba(110,90,60,.25); --border-s: rgba(130,105,70,.35);
+  --text: #ede5d5; --t2: #b0a080; --t3: #786850; --t4: #483c28;
+  --accent: #cf8d58; --asoft: rgba(207,141,88,.1); --aglow: rgba(207,141,88,.2);
+  --ubg: #ede5d5; --utext: #181310; --aibg: #1e1912;
+  --sh1: 0 2px 10px rgba(0,0,0,.25); --sh2: 0 8px 30px rgba(0,0,0,.32); --sh3: 0 20px 60px rgba(0,0,0,.4);
+}
+[data-theme="sage"] {
+  --bg: #edf2ea; --bg2: #e2ebe0; --surface: #f3f7f1; --surface2: #e8ede5;
+  --border: rgba(110,145,105,.22); --border-s: rgba(90,130,85,.32);
+  --text: #1c2a1a; --t2: #476042; --t3: #6e9068; --t4: #a8c4a2;
+  --accent: #4f8546; --asoft: rgba(79,133,70,.1); --aglow: rgba(79,133,70,.2);
+  --ubg: #1c2a1a; --utext: #edf2ea; --aibg: #f3f7f1;
+  --sh1: 0 2px 10px rgba(28,42,26,.06); --sh2: 0 8px 30px rgba(28,42,26,.1); --sh3: 0 20px 60px rgba(28,42,26,.14);
+}
+[data-theme="slate"] {
+  --bg: #191b22; --bg2: #1f2230; --surface: #1c1f28; --surface2: #252838;
+  --border: rgba(90,100,140,.2); --border-s: rgba(110,120,165,.3);
+  --text: #e4e7f4; --t2: #8890b8; --t3: #525a80; --t4: #32384e;
+  --accent: #6e8ef0; --asoft: rgba(110,142,240,.1); --aglow: rgba(110,142,240,.2);
+  --ubg: #e4e7f4; --utext: #191b22; --aibg: #1c1f28;
+  --sh1: 0 2px 10px rgba(0,0,0,.22); --sh2: 0 8px 30px rgba(0,0,0,.3); --sh3: 0 20px 60px rgba(0,0,0,.4);
+}
+
+html, body { height: 100%; font-family: var(--sans); background: var(--bg); color: var(--text); overflow: hidden; transition: background .3s, color .3s; }
+body::after { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 65% 55% at 55% 35%, var(--asoft), transparent 70%); pointer-events: none; z-index: 0; transition: background .3s; }
+
+/* --- APP LAYOUT --- */
+.app { position: relative; z-index: 1; display: flex; height: 100vh; overflow: hidden; }
+
+/* --- ADAPTIVE SIDEBAR --- */
+.sidebar {
+  width: var(--sidebar);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  transition: transform .3s cubic-bezier(.4,0,.2,1), width .3s cubic-bezier(.4,0,.2,1), opacity .2s;
+  overflow: hidden;
+  z-index: 200;
+}
+.sidebar.collapsed { width: 0; border-right: none; opacity: 0; }
+
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(2px);
+  z-index: 190;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.sb-top { padding: 18px 16px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.sb-logo { display: flex; align-items: center; gap: 8px; }
+.sb-logo-mark { width: 28px; height: 28px; border-radius: 50%; background: var(--text); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .3s; }
+.sb-logo-mark svg { width: 14px; height: 14px; stroke: var(--bg); }
+.sb-logo-name { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+
+.new-btn { padding: 8px 14px; background: var(--text); border: none; border-radius: 8px; color: var(--bg); font-family: var(--sans); font-size: 12px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .2s; box-shadow: var(--sh1); }
+.new-btn:hover { opacity: .9; transform: translateY(-1px); box-shadow: var(--sh2); }
+
+.sb-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sb-section { padding: 16px 16px 6px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: var(--t4); display: flex; justify-content: space-between; align-items: center; }
+.sb-section-badge { background: var(--border-s); color: var(--text); padding: 1px 6px; border-radius: 8px; font-size: 8px; }
+
+.sb-list { padding: 4px 10px; display: flex; flex-direction: column; gap: 2px; }
+.sb-item { padding: 10px 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 10px; color: var(--t2); font-size: 13px; border: 1px solid transparent; transition: all .2s; position: relative; white-space: nowrap; overflow: hidden; }
+.sb-item:hover { background: var(--asoft); color: var(--text); border-color: var(--border); }
+.sb-item.active { background: var(--asoft); border-color: var(--border-s); color: var(--text); font-weight: 500; }
+.sb-item-icon { font-size: 14px; flex-shrink: 0; }
+.sb-item-title { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.sb-item-del { opacity: 0; background: none; border: none; cursor: pointer; color: var(--t3); font-size: 16px; padding: 0 4px; border-radius: 5px; transition: all .2s; flex-shrink: 0; }
+.sb-item:hover .sb-item-del { opacity: 1; }
+.sb-item-del:hover { color: rgba(220, 53, 69, 0.9); }
+
+.sb-bottom { padding: 12px 10px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
+.sb-bottom-btn { padding: 10px 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 10px; color: var(--t2); font-size: 13px; background: none; border: none; text-align: left; font-family: var(--sans); transition: all .2s; width: 100%; font-weight: 500; }
+.sb-bottom-btn:hover { background: var(--asoft); color: var(--accent); }
+
+/* --- MAIN CONTENT --- */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; position: relative; }
+
+.topbar { flex-shrink: 0; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--border); background: rgba(245,240,232,.65); backdrop-filter: blur(20px); transition: background .3s, border-color .3s; }
+[data-theme="dusk"] .topbar, [data-theme="slate"] .topbar { background: rgba(24,19,16,.7); }
+[data-theme="sage"] .topbar { background: rgba(237,242,234,.65); }
+
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.toggle-sb-btn { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--t3); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; font-size: 18px; }
+.toggle-sb-btn:hover { background: var(--asoft); color: var(--accent); border-color: var(--border-s); }
+
+.chat-title-wrap { display: flex; flex-direction: column; gap: 2px; }
+.chat-title { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.2px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 180px; }
+.chat-sub { font-size: 11px; color: var(--t3); display: flex; align-items: center; gap: 6px; font-weight: 300; }
+.sdot { width: 6px; height: 6px; border-radius: 50%; background: #28a745; box-shadow: 0 0 6px rgba(40,167,69,.5); }
+.sdot.thinking { background: var(--accent); box-shadow: 0 0 8px var(--aglow); animation: pulse 1.5s infinite; }
+.sdot.offline { background: var(--t4); box-shadow: none; animation: none; }
+@keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+
+/* --- MESSAGES AREA --- */
+.msgs { flex: 1; overflow-y: auto; padding: 32px 40px 20px; display: flex; flex-direction: column; gap: 8px; scroll-behavior: smooth; }
+.msgs::-webkit-scrollbar { width: 5px; }
+.msgs::-webkit-scrollbar-thumb { background: var(--border-s); border-radius: 10px; }
+
+.empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; text-align: center; padding: 40px 20px; animation: fadeUp .5s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+.empty-glyph { font-size: 42px; color: var(--t4); line-height: 1; }
+.empty-head { font-size: 24px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+.empty-sub { font-size: 14.5px; color: var(--t3); line-height: 1.6; max-width: 380px; font-weight: 300; }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 500px; }
+.chip { padding: 8px 16px; border: 1px solid var(--border); border-radius: 100px; font-size: 13px; color: var(--t2); background: var(--surface); cursor: pointer; transition: all .2s; font-weight: 500; font-family: var(--sans); box-shadow: var(--sh1); }
+.chip:hover { border-color: var(--accent); color: var(--accent); background: var(--asoft); transform: translateY(-2px); box-shadow: var(--sh2); }
+
+.msg-group { display: flex; flex-direction: column; animation: msgIn .3s cubic-bezier(.22,1,.36,1); margin-bottom: 12px; }
+@keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.msg-group.user { align-items: flex-end; }
+.msg-group.ai { align-items: flex-start; }
+.msg-lbl { font-size: 11px; color: var(--t4); margin-bottom: 6px; padding: 0 4px; font-weight: 500; }
+
+.bubble { max-width: 85%; padding: 14px 20px; border-radius: var(--r); font-size: 14.5px; line-height: 1.65; position: relative; }
+.msg-group.user .bubble { background: var(--ubg); color: var(--utext); border-bottom-right-radius: 4px; box-shadow: var(--sh1); }
+.msg-group.ai .bubble { background: var(--aibg); color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 4px; box-shadow: var(--sh1); transition: box-shadow .2s; }
+.msg-group.ai .bubble:hover { box-shadow: var(--sh2); }
+
+/* Markdown Parsers */
+.bubble p { margin-bottom: 10px; } .bubble p:last-child { margin-bottom: 0; }
+.bubble strong { color: var(--accent); font-weight: 600; }
+.bubble em { font-style: italic; opacity: 0.9; }
+.bubble p code, .bubble li code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; background: var(--surface2); border: 1px solid var(--border); padding: 2px 6px; border-radius: 6px; color: var(--accent); }
+.bubble ul, .bubble ol { padding-left: 20px; margin: 10px 0; }
+.bubble li { margin-bottom: 4px; }
+.bubble h1, .bubble h2, .bubble h3 { margin: 16px 0 8px; letter-spacing: -0.3px; color: var(--text); }
+.bubble h1 { font-size: 22px; font-weight: 700; } .bubble h2 { font-size: 20px; font-weight: 600; } .bubble h3 { font-size: 18px; font-weight: 600; }
+.bubble blockquote { border-left: 3px solid var(--accent); margin: 12px 0; padding-left: 14px; color: var(--t2); font-style: italic; background: var(--asoft); padding-top: 8px; padding-bottom: 8px; border-radius: 0 8px 8px 0; }
+.bubble a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+
+/* Code Boxes */
+.code-container { margin: 14px 0; border: 1px solid var(--border-s); border-radius: 12px; overflow: hidden; background: var(--bg2); }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; background: var(--surface2); border-bottom: 1px solid var(--border-s); }
+.code-lang { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--t3); }
+.code-actions { display: flex; gap: 6px; }
+.code-actions button { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 500; color: var(--t2); cursor: pointer; transition: all .2s; font-family: var(--sans); }
+.code-actions button:hover { background: var(--asoft); color: var(--accent); border-color: var(--accent); transform: translateY(-1px); }
+.code-container pre { margin: 0; border: none; border-radius: 0; padding: 14px; overflow-x: auto; }
+.code-container pre code { background: none; border: none; padding: 0; font-size: 13.5px; color: var(--t2); font-family: 'SF Mono', 'Fira Code', monospace; }
+
+.bub-acts { display: flex; gap: 6px; margin-top: 6px; opacity: 0; transition: opacity .2s; }
+.msg-group:hover .bub-acts { opacity: 1; }
+.bact { padding: 4px 12px; font-size: 11px; background: transparent; border: 1px solid var(--border); border-radius: 100px; color: var(--t3); cursor: pointer; transition: all .2s; font-family: var(--sans); font-weight: 500; }
+.bact:hover { color: var(--accent); border-color: var(--accent); background: var(--asoft); }
+
+.typing { display: flex; gap: 5px; align-items: center; padding: 4px 0; }
+.tdot { width: 6px; height: 6px; border-radius: 50%; background: var(--t4); animation: tdot 1.4s infinite ease-in-out both; }
+.tdot:nth-child(1) { animation-delay: -0.32s; }
+.tdot:nth-child(2) { animation-delay: -0.16s; }
+@keyframes tdot { 0%, 80%, 100% { transform: scale(0); opacity: 0.3; } 40% { transform: scale(1); opacity: 1; } }
+
+/* --- COMPLIANCE SLIDING DISCLAIMER CARD (REVEALS ON SCROLL DOWN) --- */
+.sliding-disclaimer-wrapper {
+  margin-top: 36px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  border-radius: 16px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 11.5px;
+  line-height: 1.5;
+  box-shadow: var(--sh1);
+}
+.sliding-disclaimer-wrapper strong {
+  color: var(--t2);
+  font-weight: 600;
+}
+
+/* --- INPUT FOOTPRINT --- */
+.input-zone { flex-shrink: 0; padding: 12px 28px 24px; background: rgba(245,240,232,.65); backdrop-filter: blur(20px); border-top: 1px solid var(--border); transition: background .3s, border-color .3s; }
+[data-theme="dusk"] .input-zone, [data-theme="slate"] .input-zone { background: rgba(24,19,16,.7); }
+[data-theme="sage"] .input-zone { background: rgba(237,242,234,.65); }
+
+.ibox { display: flex; align-items: flex-end; gap: 10px; background: var(--surface); border: 1px solid var(--border-s); border-radius: 22px; padding: 10px 10px 10px 20px; box-shadow: var(--sh1); transition: all .3s; }
+.ibox:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--asoft), var(--sh1); }
+
+textarea#inp { flex: 1; background: none; border: none; outline: none; color: var(--text); font-family: var(--sans); font-size: 14.5px; font-weight: 400; resize: none; min-height: 24px; max-height: 120px; line-height: 1.6; padding-bottom: 4px; padding-top: 4px;}
+textarea#inp::placeholder { color: var(--t4); }
+
+.send-btn, .stop-btn { width: 40px; height: 40px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; border: none; }
+.send-btn { background: var(--text); color: var(--bg); box-shadow: var(--sh1); }
+.send-btn:hover { transform: scale(1.05); box-shadow: var(--sh2); opacity: 0.9;}
+.send-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+.send-btn svg { width: 16px; height: 16px; stroke-width: 2.5px; }
+
+.stop-btn { background: var(--surface2); border: 1px solid var(--border-s); color: var(--t2); display: none; }
+.stop-btn.on { display: flex; }
+.stop-btn:hover { background: var(--asoft); color: var(--accent); }
+
+.ifooter { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding: 0 4px; font-size: 11.5px; color: var(--t4); }
+.ifooter-left { display: flex; gap: 8px; align-items: center; }
+.kbd { font-size: 10px; border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; color: var(--t3); background: var(--surface); }
+.mtag { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--t3); }
+.mdot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+/* --- MODALS --- */
+.modal-overlay { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,.5); backdrop-filter: blur(5px); opacity: 0; pointer-events: none; transition: opacity .3s; display: flex; align-items: center; justify-content: center; }
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+
+.modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; box-shadow: var(--sh3); padding: 32px; display: flex; flex-direction: column; gap: 24px; animation: scaleIn .3s cubic-bezier(.22,1,.36,1); max-height: 85vh; overflow-y: auto; width: 90%; max-width: 520px; }
+@keyframes scaleIn { from { opacity: 0; transform: scale(.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+.m-head { display: flex; align-items: center; justify-content: space-between; }
+.m-title { font-size: 20px; font-weight: 700; color: var(--text); }
+.m-close { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: transparent; color: var(--t3); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+.m-close:hover { background: var(--surface2); color: var(--text); }
+
+#preview-frame { flex: 1; border: 1px solid var(--border); border-radius: 12px; background: #fff; width: 100%; min-height: 65vh; }
+
+.st-sec { display: flex; flex-direction: column; gap: 12px; }
+.st-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: var(--t3); }
+
+.theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tcard { padding: 12px; border-radius: 14px; border: 2px solid var(--border); cursor: pointer; transition: all .2s; display: flex; flex-direction: column; gap: 8px; }
+.tcard:hover { border-color: var(--border-s); }
+.tcard.active { border-color: var(--accent); background: var(--asoft); }
+.tswatch { width: 100%; height: 20px; border-radius: 6px; display: flex; gap: 4px; overflow: hidden;}
+.tswatch span { flex: 1; height: 100%; }
+.tname { font-size: 13px; color: var(--t2); font-weight: 500;}
+
+.key-grp { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
+.key-row { display: flex; align-items: center; justify-content: space-between; }
+.klbl { font-size: 13px; color: var(--t2); font-weight: 600;}
+.kstat { font-size: 11px; color: var(--t4); padding: 2px 6px; border-radius: 4px; background: var(--surface2); font-weight: 500; }
+.kstat.ok { color: #155724; background: #d4edda; }
+.kstat.err { color: #721c24; background: #f8d7da; }
+.api-row-inputs { display: flex; gap: 8px; }
+.api-row-inputs .kinp-model { width: 38%; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg2); color: var(--text); font-size: 13px;}
+.api-row-inputs .kinp-key { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg2); color: var(--text); font-size: 13px;}
+
+.api-test-btn { padding: 8px 12px; background: var(--surface2); border: 1px solid var(--border-s); border-radius: 12px; font-size: 12px; font-weight: 600; color: var(--accent); cursor: pointer; transition: all .2s; margin-top: 4px; align-self: flex-end; }
+.api-test-btn:hover { background: var(--asoft); border-color: var(--accent); }
+
+.tog-grp { display: flex; gap: 6px; }
+.tog { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface2); color: var(--t2); font-size: 12px; cursor: pointer; transition: all .2s; font-family: var(--sans); font-weight: 500;}
+.tog:hover { border-color: var(--border-s); color: var(--text); }
+.tog.active { border-color: var(--accent); background: var(--accent); color: #fff; box-shadow: var(--sh1); }
+
+.save-btn { width: 100%; padding: 14px; background: var(--text); border: none; border-radius: 14px; color: var(--bg); font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; transition: all .2s; margin-top: 10px;}
+.save-btn:hover { opacity: .9; transform: translateY(-1px); box-shadow: var(--sh2); }
+
+.proj-new-form { display: flex; gap: 10px; }
+.proj-inp { flex: 1; padding: 12px 16px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-family: var(--sans); font-size: 14px; outline: none; transition: all .2s; }
+.proj-inp:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--asoft); }
+.proj-add-btn { padding: 0 20px; background: var(--text); border: none; border-radius: 12px; color: var(--bg); font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; transition: all .2s; }
+.proj-add-btn:hover { opacity: .9; transform: translateY(-1px); }
+
+.proj-list { display: flex; flex-direction: column; gap: 10px; }
+.proj-item { padding: 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 14px; }
+.proj-item:hover { border-color: var(--accent); box-shadow: var(--sh1); transform: translateY(-2px); }
+.proj-item.active-project-card { border-color: var(--accent); background: var(--asoft); }
+.proj-item-icon { font-size: 24px; }
+.proj-item-info { flex: 1; }
+.proj-item-name { font-size: 15px; color: var(--text); font-weight: 600; margin-bottom: 4px; }
+.proj-item-meta { font-size: 12px; color: var(--t3); }
+.proj-actions-layout { display: flex; gap: 8px; }
+.proj-act { padding: 6px 14px; font-size: 11.5px; border: 1px solid var(--border); border-radius: 100px; background: var(--surface); color: var(--t2); cursor: pointer; transition: all .2s; font-family: var(--sans); font-weight: 500;}
+.proj-act:hover { color: var(--accent); border-color: var(--accent); }
+.proj-act.del:hover { color: rgba(220, 53, 69, 1); border-color: rgba(220, 53, 69, 0.4); background: rgba(220, 53, 69, 0.1); }
+.proj-empty { text-align: center; padding: 30px; color: var(--t3); font-size: 14px; line-height: 1.6; }
+
+/* TOAST */
+#toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); padding: 10px 24px; background: var(--text); color: var(--bg); border-radius: 100px; font-size: 13px; font-weight: 500; box-shadow: var(--sh3); z-index: 999; opacity: 0; transition: all .3s cubic-bezier(.22,1,.36,1); pointer-events: none; white-space: nowrap; }
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* --- RESPONSIVE WORK --- */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 250;
+    width: 280px;
+    transform: translateX(-100%);
+    box-shadow: none;
+  }
+  .sidebar.active {
+    transform: translateX(0);
+    box-shadow: var(--sh3);
+  }
+  .sidebar-backdrop {
+    display: block;
+    opacity: 0;
+  }
+  .sidebar-backdrop.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .msgs {
+    padding: 16px 16px 20px;
+  }
+  .bubble {
+    max-width: 95%;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- COMPATIBILITY-FIXED INTERACTIVE PREVIEW MODAL -->
+<div class="modal-overlay" id="previewModal" onclick="if(event.target===this) closePreview()">
+  <div class="modal-card" style="max-width: 95vw; width: 1100px; padding: 20px;">
+    <div class="m-head">
+      <span class="m-title">Live Code Preview Sandbox</span>
+      <div style="display:flex; gap: 8px;">
+         <button class="bact" onclick="openPreviewNewTab()" style="font-size:13px; padding:6px 16px;">↗ Open in New Tab</button>
+         <button class="m-close" onclick="closePreview()">×</button>
+      </div>
+    </div>
+    <iframe id="preview-frame" sandbox="allow-scripts allow-modals"></iframe>
+  </div>
+</div>
+
+<!-- SIDEBAR RESPONSIVE MODAL BACKGROUND -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
+
+<!-- CONFIGURATION MANAGEMENT MODAL -->
+<div class="modal-overlay" id="stModal" onclick="if(event.target===this) closeSt()">
+  <div class="modal-card">
+    <div class="m-head">
+      <span class="m-title">Settings & Models</span>
+      <button class="m-close" onclick="closeSt()">×</button>
+    </div>
+
+    <!-- Themes -->
+    <div class="st-sec">
+      <div class="st-lbl">Visual Theme Scheme</div>
+      <div class="theme-grid" id="theme-grid">
+        <div class="tcard active" data-theme-val="default" onclick="selectTheme('default')">
+          <div class="tswatch"><span style="background:#f5f0e8"></span><span style="background:#b8733e"></span><span style="background:#2c2416"></span></div>
+          <div class="tname">Sand (Light)</div>
+        </div>
+        <div class="tcard" data-theme-val="dusk" onclick="selectTheme('dusk')">
+          <div class="tswatch"><span style="background:#181310"></span><span style="background:#cf8d58"></span><span style="background:#ede5d5"></span></div>
+          <div class="tname">Dusk (Dark)</div>
+        </div>
+        <div class="tcard" data-theme-val="sage" onclick="selectTheme('sage')">
+          <div class="tswatch"><span style="background:#edf2ea"></span><span style="background:#4f8546"></span><span style="background:#1c2a1a"></span></div>
+          <div class="tname">Sage (Nature)</div>
+        </div>
+        <div class="tcard" data-theme-val="slate" onclick="selectTheme('slate')">
+          <div class="tswatch"><span style="background:#191b22"></span><span style="background:#6e8ef0"></span><span style="background:#e4e7f4"></span></div>
+          <div class="tname">Slate (Cool)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Private API Key Input Parameters -->
+    <div class="st-sec">
+      <div class="st-lbl">Private Token Integrations</div>
+      
+      <!-- GROQ ENGINE -->
+      <div class="key-grp">
+        <div class="key-row">
+          <span class="klbl">Groq Cloud Integration</span>
+          <span class="kstat" id="groq-stat">Not Set</span>
+        </div>
+        <div class="api-row-inputs">
+          <input class="kinp-model" type="text" id="groq-model-inp" placeholder="llama-3.3-70b-versatile">
+          <input class="kinp-key" type="password" id="groq-inp" placeholder="Paste your gsk_ key...">
+        </div>
+        <button class="api-test-btn" onclick="testConnection('groq')">⚡ Verify Groq Connection</button>
+      </div>
+      
+      <!-- HUGGING FACE ROUTER -->
+      <div class="key-grp" style="border-top: 1px dashed var(--border); padding-top: 10px;">
+        <div class="key-row">
+          <span class="klbl">Hugging Face Token Router</span>
+          <span class="kstat" id="hf-stat">Not Set</span>
+        </div>
+        <div class="api-row-inputs">
+          <input class="kinp-model" type="text" id="hf-model-inp" placeholder="meta-llama/Llama-3.3-70B-Instruct:groq">
+          <input class="kinp-key" type="password" id="hf-inp" placeholder="Paste your hf_ token...">
+        </div>
+        <button class="api-test-btn" onclick="testConnection('hf')">⚡ Verify Hugging Face Router</button>
+      </div>
+
+      <!-- OPENROUTER DIRECT -->
+      <div class="key-grp" style="border-top: 1px dashed var(--border); padding-top: 10px;">
+        <div class="key-row">
+          <span class="klbl">OpenRouter Token Exchange</span>
+          <span class="kstat" id="or-stat">Not Set</span>
+        </div>
+        <div class="api-row-inputs">
+          <input class="kinp-model" type="text" id="or-model-inp" placeholder="google/gemma-2-9b-it:free">
+          <input class="kinp-key" type="password" id="or-inp" placeholder="Paste your sk-or- key...">
+        </div>
+        <button class="api-test-btn" onclick="testConnection('or')">⚡ Verify OpenRouter</button>
+      </div>
+    </div>
+
+    <!-- Engine Routing Mode Toggle -->
+    <div class="st-sec">
+      <div class="st-lbl">Active AI Provider</div>
+      <div class="tog-grp">
+        <button class="tog active" id="prov-auto" onclick="selectProv('auto')">Auto Match</button>
+        <button class="tog" id="prov-groq" onclick="selectProv('groq')">Groq</button>
+        <button class="tog" id="prov-hf" onclick="selectProv('hf')">HuggingFace</button>
+        <button class="tog" id="prov-or" onclick="selectProv('openrouter')">OpenRouter</button>
+      </div>
+    </div>
+
+    <button class="save-btn" onclick="saveSettings()">Save & Write Configurations</button>
+    <button class="bact" onclick="clearFullCache()" style="margin-top: 8px; width: 100%; border-color: rgba(220, 53, 69, 0.4); color: rgba(220, 53, 69, 0.9);">🗑️ Clear App Caches (Wipe Database Memory)</button>
+  </div>
+</div>
+
+<!-- PROJECTS MODAL -->
+<div class="modal-overlay" id="projModal" onclick="if(event.target===this) closeProj()">
+  <div class="modal-card">
+    <div class="m-head">
+      <span class="m-title">Project Folders</span>
+      <button class="m-close" onclick="closeProj()">×</button>
+    </div>
+    <div class="proj-new-form">
+      <input class="proj-inp" type="text" id="proj-name-inp" placeholder="Enter folder name..." onkeydown="if(event.key==='Enter') createProject()">
+      <button class="proj-add-btn" onclick="createProject()">Create</button>
+    </div>
+    <div class="proj-list" id="proj-list"></div>
+  </div>
+</div>
+
+<!-- WORKBENCH LAYOUT CONTEXT -->
+<div class="app">
+  <!-- SIDEBAR NAVIGATION PANEL -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-logo">
+        <div class="sb-logo-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></svg>
+        </div>
+        <span class="sb-logo-name">Hardik AI</span>
+      </div>
+      <button class="new-btn" onclick="createNewChatDraft()">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Chat
+      </button>
+    </div>
+    
+    <div class="sb-scroll-area">
+      <!-- FOLDER QUICK SWITCHER -->
+      <div class="sb-section">Folder Workspace</div>
+      <div class="sb-list" id="sb-folder-quicklist">
+        <!-- Folders/Projects Switcher -->
+      </div>
+
+      <!-- CHAT DIRECTORY THREADS -->
+      <div class="sb-section" id="chats-section-title">Chats</div>
+      <div class="sb-list" id="sb-list">
+        <!-- Chat history threads dynamically generated here -->
+      </div>
+    </div>
+
+    <div class="sb-bottom">
+      <button class="sb-bottom-btn" onclick="openProj()">
+        <span style="font-size:16px">📁</span> Manage Projects
+      </button>
+      <button class="sb-bottom-btn" onclick="openSt()">
+        <span style="font-size:16px">⚙️</span> Settings & API Keys
+      </button>
+    </div>
+  </aside>
+
+  <!-- CHAT INTERFACE CORE VIEWER -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="toggle-sb-btn" onclick="toggleSidebar()">☰</button>
+        <div class="chat-title-wrap">
+          <span class="chat-title" id="chat-title">New Chat</span>
+          <span class="chat-sub">
+            <span class="sdot" id="sdot"></span>
+            <span id="stext">Ready</span>
+          </span>
+        </div>
+      </div>
+      <div class="topbar-right"></div>
+    </div>
+
+    <div class="msgs" id="msgs">
+      <!-- Message Stream -->
+    </div>
+
+    <div class="input-zone">
+      <div class="ibox">
+        <textarea id="inp" placeholder="Ask Hardik AI to build something spectacular..." rows="1" onkeydown="handleEnter(event)" oninput="autoGrow(this)"></textarea>
+        <button class="stop-btn" id="stop-btn" onclick="abortGeneration()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+        </button>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+      <div class="ifooter">
+        <div class="ifooter-left">
+          <span><kbd class="kbd">Enter</kbd> to send · <kbd class="kbd">Shift + Enter</kbd> for line break</span>
+        </div>
+        <div class="mtag"><span class="mdot"></span><span id="mtag">Checking Active Providers</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/** * ========================================================
+ * HARDIK AI CORE APPLICATION WORKBENCH AUTOMATION ENGINE
+ * ========================================================
+ */
+
+const CFG = {
+  SYSTEM_PROMPT: "You are Hardik AI, a highly responsive, master-class software engineering compiler and helpful assistant. Format clear markdown replies. Always supply full script configurations.",
+  GROQ_URL: "https://api.groq.com/openai/v1/chat/completions",
+  GROQ_MODEL: "llama-3.3-70b-versatile",
+  HF_URL: "https://router.huggingface.co/v1/chat/completions",
+  HF_MODEL: "meta-llama/Llama-3.3-70B-Instruct:groq",
+  OR_URL: "https://openrouter.ai/api/v1/chat/completions",
+  OR_MODEL: "google/gemma-2-9b-it:free"
+};
+
+let AppState = {
+  theme: 'default',
+  provider: 'auto',
+  groqKey: '',
+  groqModel: '',
+  hfKey: '',
+  hfModel: '',
+  orKey: '',
+  orModel: '',
+  chats: [], // Each chat: { id, title, messages, projId, timestamp }
+  projects: [], // Each project: { id, name }
+  activeChatId: null, // If null, the UI represents an empty / unsaved draft thread
+  activeProjectId: null, // Tracks currently selected folder context (null = All / Root)
+  isGenerating: false,
+  abortController: null
+};
+
+const $ = id => document.getElementById(id);
+const escapeHTML = str => String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+let toastTimeout;
+
+function showToast(msg, isError = false) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.style.background = isError ? '#dc3545' : 'var(--text)';
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// --- INITIALIZATION ---
+function initApp() {
+  AppState.theme = localStorage.getItem('h_theme') || 'default';
+  AppState.provider = localStorage.getItem('h_provider') || 'auto';
+  
+  AppState.groqKey = localStorage.getItem('h_groq_key') || '';
+  AppState.groqModel = localStorage.getItem('h_groq_model') || CFG.GROQ_MODEL;
+  
+  AppState.hfKey = localStorage.getItem('h_hf_key') || '';
+  AppState.hfModel = localStorage.getItem('h_hf_model') || CFG.HF_MODEL;
+  
+  AppState.orKey = localStorage.getItem('h_or_key') || '';
+  AppState.orModel = localStorage.getItem('h_or_model') || CFG.OR_MODEL;
+
+  AppState.activeProjectId = localStorage.getItem('h_active_project');
+  if (AppState.activeProjectId === "null" || AppState.activeProjectId === "undefined") {
+    AppState.activeProjectId = null;
+  }
+
+  $('groq-inp').value = AppState.groqKey;
+  $('groq-model-inp').value = AppState.groqModel;
+  $('hf-inp').value = AppState.hfKey;
+  $('hf-model-inp').value = AppState.hfModel;
+  $('or-inp').value = AppState.orKey;
+  $('or-model-inp').value = AppState.orModel;
+  
+  try { AppState.chats = JSON.parse(localStorage.getItem('h_chats')) || []; } catch(e) { AppState.chats = []; }
+  try { AppState.projects = JSON.parse(localStorage.getItem('h_projects')) || []; } catch(e) { AppState.projects = []; }
+  
+  applyThemeToDOM(AppState.theme);
+  updateProviderLabel();
+  updateStatusIndicators();
+
+  // Restore responsive sidebar layout state if preferred
+  const isSidebarCollapsed = localStorage.getItem('h_side_coll') === 'true';
+  $('sidebar').classList.toggle('collapsed', isSidebarCollapsed);
+
+  // Restore conversation draft state
+  const lastActive = localStorage.getItem('h_active_chat');
+  
+  // Clean up any empty chats that shouldn't have been saved
+  AppState.chats = AppState.chats.filter(c => c.messages && c.messages.length > 0);
+  persistChats();
+
+  if (lastActive && AppState.chats.find(c => c.id === lastActive)) {
+    switchChat(lastActive);
+  } else {
+    // Start with a clean draft chat matching active workspace parameters
+    createNewChatDraft();
+  }
+}
+
+function updateStatusIndicators() {
+  $('groq-stat').textContent = AppState.groqKey ? 'Active ✓' : 'Empty';
+  $('groq-stat').className = 'kstat ' + (AppState.groqKey ? 'ok' : '');
+  
+  $('hf-stat').textContent = AppState.hfKey ? 'Active ✓' : 'Empty';
+  $('hf-stat').className = 'kstat ' + (AppState.hfKey ? 'ok' : '');
+
+  $('or-stat').textContent = AppState.orKey ? 'Active ✓' : 'Empty';
+  $('or-stat').className = 'kstat ' + (AppState.orKey ? 'ok' : '');
+}
+
+// --- SECURE CONNECTION TEST PIPELINES ---
+async function testConnection(provId) {
+  const statBadge = $(`${provId}-stat`);
+  statBadge.textContent = "Verifying...";
+  statBadge.className = "kstat";
+
+  let endpoint, model, apiKey, headers;
+
+  if (provId === 'groq') {
+    endpoint = CFG.GROQ_URL;
+    model = $('groq-model-inp').value.trim() || CFG.GROQ_MODEL;
+    apiKey = $('groq-inp').value.trim();
+  } else if (provId === 'hf') {
+    endpoint = CFG.HF_URL;
+    model = $('hf-model-inp').value.trim() || CFG.HF_MODEL;
+    apiKey = $('hf-inp').value.trim();
+  } else if (provId === 'or') {
+    endpoint = CFG.OR_URL;
+    model = $('or-model-inp').value.trim() || CFG.OR_MODEL;
+    apiKey = $('or-inp').value.trim();
+  }
+
+  if (!apiKey) {
+    statBadge.textContent = "Missing Input";
+    statBadge.className = "kstat err";
+    showToast("Please supply a valid token code before verification.", true);
+    return;
+  }
+
+  headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${apiKey}`
+  };
+
+  if (provId === 'or') {
+    headers['HTTP-Referer'] = window.location.href;
+    headers['X-Title'] = 'Hardik AI Handshake';
+  }
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        model: model,
+        messages: [{ role: 'user', content: 'Ping' }],
+        max_tokens: 5,
+        stream: false 
+      })
+    });
+
+    if (response.ok) {
+      statBadge.textContent = "Verified ✓";
+      statBadge.className = "kstat ok";
+      showToast(`${provId.toUpperCase()} Connected Successfully!`);
+    } else {
+      let errJson = await response.json().catch(() => ({}));
+      throw new Error(errJson.error?.message || "Handshake rejected");
+    }
+  } catch (err) {
+    statBadge.textContent = "Rejected ❌";
+    statBadge.className = "kstat err";
+    showToast(`Handshake failed: ${err.message}`, true);
+  }
+}
+
+// --- PREFERENCE PANEL MANAGEMENT ---
+function openSt() {
+  $('groq-inp').value = AppState.groqKey;
+  $('groq-model-inp').value = AppState.groqModel;
+  $('hf-inp').value = AppState.hfKey;
+  $('hf-model-inp').value = AppState.hfModel;
+  $('or-inp').value = AppState.orKey;
+  $('or-model-inp').value = AppState.orModel;
+  
+  updateStatusIndicators();
+  selectTheme(AppState.theme);
+  selectProv(AppState.provider);
+  $('stModal').classList.add('open');
+}
+
+function closeSt() { $('stModal').classList.remove('open'); }
+
+let tempTheme = '';
+let tempProv = '';
+
+function selectTheme(t) {
+  tempTheme = t;
+  document.querySelectorAll('.tcard').forEach(el => {
+    el.classList.toggle('active', el.dataset.themeVal === t);
+  });
+  applyThemeToDOM(t);
+}
+
+function selectProv(p) {
+  tempProv = p;
+  document.querySelectorAll('.tog').forEach(el => el.classList.remove('active'));
+  let btnId = p === 'openrouter' ? 'prov-or' : (p === 'groq' ? 'prov-groq' : (p === 'hf' ? 'prov-hf' : 'prov-auto'));
+  $(btnId).classList.add('active');
+}
+
+function saveSettings() {
+  AppState.groqKey = $('groq-inp').value.trim();
+  AppState.groqModel = $('groq-model-inp').value.trim() || CFG.GROQ_MODEL;
+  AppState.hfKey = $('hf-inp').value.trim();
+  AppState.hfModel = $('hf-model-inp').value.trim() || CFG.HF_MODEL;
+  AppState.orKey = $('or-inp').value.trim();
+  AppState.orModel = $('or-model-inp').value.trim() || CFG.OR_MODEL;
+
+  AppState.theme = tempTheme || AppState.theme;
+  AppState.provider = tempProv || AppState.provider;
+
+  localStorage.setItem('h_groq_key', AppState.groqKey);
+  localStorage.setItem('h_groq_model', AppState.groqModel);
+  localStorage.setItem('h_hf_key', AppState.hfKey);
+  localStorage.setItem('h_hf_model', AppState.hfModel);
+  localStorage.setItem('h_or_key', AppState.orKey);
+  localStorage.setItem('h_or_model', AppState.orModel);
+  localStorage.setItem('h_theme', AppState.theme);
+  localStorage.setItem('h_provider', AppState.provider);
+
+  updateProviderLabel();
+  closeSt();
+  showToast('Configuration profiles active ✓');
+}
+
+function applyThemeToDOM(t) {
+  if (t === 'default') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', t);
+}
+
+function updateProviderLabel() {
+  let label = "Enter Keys in Settings ⚙️";
+  let activeProv = AppState.provider;
+  
+  if (activeProv === 'auto') {
+    if (AppState.groqKey) activeProv = 'groq';
+    else if (AppState.hfKey) activeProv = 'hf';
+    else if (AppState.orKey) activeProv = 'openrouter';
+  }
+
+  if (activeProv === 'groq' && AppState.groqKey) label = `Groq Server · ${AppState.groqModel}`;
+  else if (activeProv === 'hf' && AppState.hfKey) label = `HF Router · ${AppState.hfModel.split('/').pop()}`;
+  else if ((activeProv === 'openrouter' || activeProv === 'auto') && AppState.orKey) label = `OpenRouter · ${AppState.orModel.split('/').pop()}`;
+  
+  $('mtag').textContent = label;
+}
+
+function clearFullCache() {
+  if (confirm("Perform a complete data wipe? All conversational histories and saved profiles will clear.")) {
+    localStorage.clear();
+    location.reload();
+  }
+}
+
+// --- FILTER DIRECTORIES AND PROJECTS ---
+function selectProjectScope(projId) {
+  AppState.activeProjectId = projId;
+  if(projId === null) {
+    localStorage.removeItem('h_active_project');
+    showToast("Workspace Filter: All Chats");
+  } else {
+    localStorage.setItem('h_active_project', projId);
+    const p = AppState.projects.find(p => p.id === projId);
+    showToast(`Workspace Filter: ${p ? p.name : "Active Folder"}`);
+  }
+  
+  // Switch directory context: Load the first message within this scope, or present a clean slate
+  const matchingChats = getFilteredChats();
+  if (matchingChats.length > 0) {
+    switchChat(matchingChats[0].id);
+  } else {
+    createNewChatDraft();
+  }
+  closeMobileSidebar();
+}
+
+function getFilteredChats() {
+  // Only return chats with messages (saved chats)
+  const savedChats = AppState.chats.filter(c => c.messages && c.messages.length > 0);
+  if (AppState.activeProjectId === null) {
+    return savedChats;
+  }
+  return savedChats.filter(c => c.projId === AppState.activeProjectId);
+}
+
+function createProject() {
+  const inp = $('proj-name-inp');
+  const name = inp.value.trim();
+  if (!name) return;
+  
+  const id = 'p_' + Date.now();
+  AppState.projects.unshift({ id: id, name: name });
+  localStorage.setItem('h_projects', JSON.stringify(AppState.projects));
+  
+  inp.value = '';
+  renderProjectsList();
+  renderSidebar(); 
+  showToast('Project workspace created ✓');
+}
+
+function deleteProject(id) {
+  if (!confirm("Remove folder directory? Linked items will transfer to general threads.")) return;
+  
+  AppState.projects = AppState.projects.filter(p => p.id !== id);
+  localStorage.setItem('h_projects', JSON.stringify(AppState.projects));
+  
+  // Unlink associated project chats
+  AppState.chats.forEach(c => { if (c.projId === id) c.projId = null; });
+  persistChats();
+
+  if (AppState.activeProjectId === id) {
+    AppState.activeProjectId = null;
+    localStorage.removeItem('h_active_project');
+  }
+
+  renderProjectsList();
+  renderSidebar();
+}
+
+function renderProjectsList() {
+  const list = $('proj-list');
+  list.innerHTML = '';
+  
+  // "All Chats" Switcher option inside the management modal
+  const rootBtn = document.createElement('div');
+  rootBtn.className = 'proj-item' + (AppState.activeProjectId === null ? ' active-project-card' : '');
+  rootBtn.onclick = () => { selectProjectScope(null); closeProj(); };
+  rootBtn.innerHTML = `
+    <span class="proj-item-icon">🗂️</span>
+    <div class="proj-item-info">
+      <div class="proj-item-name">All Chats (Root Folder)</div>
+      <div class="proj-item-meta">${AppState.chats.filter(c => c.messages.length > 0).length} total saved conversations</div>
+    </div>
+    <span class="proj-act" style="border:none; background:none; color:var(--accent);">Focus</span>
+  `;
+  list.appendChild(rootBtn);
+
+  AppState.projects.forEach(p => {
+    const count = AppState.chats.filter(c => c.projId === p.id && c.messages.length > 0).length;
+    const div = document.createElement('div');
+    div.className = 'proj-item' + (AppState.activeProjectId === p.id ? ' active-project-card' : '');
+    div.onclick = () => { selectProjectScope(p.id); closeProj(); };
+    div.innerHTML = `
+      <span class="proj-item-icon">📁</span>
+      <div class="proj-item-info">
+        <div class="proj-item-name">${escapeHTML(p.name)}</div>
+        <div class="proj-item-meta">${count} active conversation${count !== 1 ? 's' : ''}</div>
+      </div>
+      <div class="proj-actions-layout">
+        <button class="proj-act" onclick="event.stopPropagation(); selectProjectScope('${p.id}'); closeProj();">Focus</button>
+        <button class="proj-act del" onclick="event.stopPropagation(); deleteProject('${p.id}')">Delete</button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function openProj() { renderProjectsList(); $('projModal').classList.add('open'); }
+function closeProj() { $('projModal').classList.remove('open'); }
+
+// --- CONVERSATION DRAFT THREAD (PREVENTS REDUNDANCY) ---
+function createNewChatDraft() {
+  // Sets draft state instantly to present a clean workspace context
+  AppState.activeChatId = null;
+  localStorage.removeItem('h_active_chat');
+  
+  let subtitleText = "New Chat";
+  if (AppState.activeProjectId) {
+    const p = AppState.projects.find(proj => proj.id === AppState.activeProjectId);
+    if (p) subtitleText = `📁 Focus Folder: ${p.name}`;
+  }
+  
+  $('chat-title').textContent = "New Chat";
+  setUIStatus('ready', subtitleText);
+  
+  renderSidebar();
+  renderMessages();
+  closeMobileSidebar();
+}
+
+function persistChats() { localStorage.setItem('h_chats', JSON.stringify(AppState.chats)); }
+
+const getActiveChat = () => AppState.chats.find(c => c.id === AppState.activeChatId);
+
+function switchChat(id) {
+  AppState.activeChatId = id;
+  localStorage.setItem('h_active_chat', id);
+  
+  const chat = getActiveChat();
+  let subtitleText = "Ready";
+  
+  if (chat && chat.projId) {
+    const p = AppState.projects.find(proj => proj.id === chat.projId);
+    if (p) subtitleText = `📁 Folder: ${p.name}`;
+  } else if (AppState.activeProjectId) {
+    const p = AppState.projects.find(proj => proj.id === AppState.activeProjectId);
+    if (p) subtitleText = `📁 Active Folder: ${p.name}`;
+  }
+
+  $('chat-title').textContent = chat ? chat.title : "New Chat";
+  setUIStatus('ready', subtitleText);
+  
+  renderSidebar();
+  renderMessages();
+  closeMobileSidebar();
+}
+
+function deleteChat(id, e) {
+  e.stopPropagation();
+  AppState.chats = AppState.chats.filter(c => c.id !== id);
+  persistChats();
+  if (AppState.activeChatId === id) {
+    const filtered = getFilteredChats();
+    if (filtered.length > 0) switchChat(filtered[0].id);
+    else createNewChatDraft();
+  } else {
+    renderSidebar();
+  }
+}
+
+// --- RESPONSIVE TOUCH & COLLAPSIBLE SIDEBAR ---
+function toggleSidebar() {
+  if (window.innerWidth <= 768) {
+    const isSidebarActive = $('sidebar').classList.contains('active');
+    if (isSidebarActive) {
+      closeMobileSidebar();
+    } else {
+      openMobileSidebar();
+    }
+  } else {
+    const coll = $('sidebar').classList.toggle('collapsed');
+    localStorage.setItem('h_side_coll', coll ? 'true' : 'false');
+  }
+}
+
+function openMobileSidebar() {
+  $('sidebar').classList.add('active');
+  $('sidebarBackdrop').classList.add('active');
+}
+
+function closeMobileSidebar() {
+  $('sidebar').classList.remove('active');
+  $('sidebarBackdrop').classList.remove('active');
+}
+
+function renderSidebar() {
+  // 1. Render FOLDERS Workspace Switcher Quicklist
+  const folderContainer = $('sb-folder-quicklist');
+  folderContainer.innerHTML = '';
+  
+  // All Chats Workspace Toggle Button
+  const rootBtn = document.createElement('div');
+  rootBtn.className = 'sb-item' + (AppState.activeProjectId === null ? ' active' : '');
+  rootBtn.onclick = () => selectProjectScope(null);
+  rootBtn.innerHTML = `<span class="sb-item-icon">🗂️</span><span class="sb-item-title" style="font-size:12.5px;">All Workspaces</span>`;
+  folderContainer.appendChild(rootBtn);
+
+  AppState.projects.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'sb-item' + (AppState.activeProjectId === p.id ? ' active' : '');
+    div.onclick = () => selectProjectScope(p.id);
+    div.innerHTML = `<span class="sb-item-icon">📁</span><span class="sb-item-title" style="font-size:12.5px;">${escapeHTML(p.name)}</span>`;
+    folderContainer.appendChild(div);
+  });
+
+  // 2. Render CHATS within current focused folder context
+  const list = $('sb-list'); 
+  list.innerHTML = '';
+  
+  const matchingChats = getFilteredChats(); // Grabs ONLY non-empty saved chats in current folder scope
+  $('chats-section-title').innerHTML = `Saved Chats <span class="sb-section-badge">${matchingChats.length}</span>`;
+
+  if (matchingChats.length === 0) {
+    const emptyMsg = document.createElement('div');
+    emptyMsg.style.padding = '12px 16px';
+    emptyMsg.style.fontSize = '12px';
+    emptyMsg.style.color = 'var(--t4)';
+    emptyMsg.style.textAlign = 'center';
+    emptyMsg.textContent = 'No active chats here.';
+    list.appendChild(emptyMsg);
+    return;
+  }
+
+  matchingChats.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'sb-item' + (c.id === AppState.activeChatId ? ' active' : '');
+    div.onclick = () => switchChat(c.id);
+    div.innerHTML = `<span class="sb-item-icon">💬</span><span class="sb-item-title">${escapeHTML(c.title)}</span><button class="sb-item-del" onclick="deleteChat('${c.id}', event)">×</button>`;
+    list.appendChild(div);
+  });
+}
+
+// --- DUAL-FALLBACK INSTANT HTML SANDBOX LIVE PREVIEW ENGINE ---
+let activeSourceBuffer = "";
+
+function previewHTML(codeBlockId) {
+  const targetCode = $(codeBlockId).textContent;
+  activeSourceBuffer = targetCode;
+  const targetFrame = $('preview-frame');
+  
+  targetFrame.src = 'about:blank';
+  
+  setTimeout(() => {
+    try {
+      targetFrame.srcdoc = targetCode;
+    } catch (e) {
+      const sandboxBlob = new Blob([targetCode], {type: 'text/html'});
+      const fallbackUrl = URL.createObjectURL(sandboxBlob);
+      targetFrame.onload = () => URL.revokeObjectURL(fallbackUrl);
+      targetFrame.src = fallbackUrl;
+    }
+  }, 80);
+  
+  $('previewModal').classList.add('open');
+}
+
+function closePreview() {
+  $('previewModal').classList.remove('open');
+  $('preview-frame').srcdoc = '';
+  $('preview-frame').src = 'about:blank';
+}
+
+function openPreviewNewTab() {
+  if (!activeSourceBuffer) return;
+  const b = new Blob([activeSourceBuffer], {type: 'text/html'});
+  window.open(URL.createObjectURL(b), '_blank');
+}
+
+function downloadCode(codeBlockId, ext) {
+  const text = $(codeBlockId).textContent;
+  let cleanExt = ext.toLowerCase();
+  if(cleanExt === 'javascript') cleanExt = 'js';
+  if(cleanExt === 'python') cleanExt = 'py';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], {type: 'text/plain'}));
+  a.download = `hardik_ai_export_${Date.now()}.${cleanExt}`;
+  a.click();
+  showToast(`Script asset filed successfully as .${cleanExt} ✓`);
+}
+
+// --- MESSAGES & SCROLLABLE FOOTER DISCLAIMER ---
+function renderMessages() {
+  const chat = getActiveChat();
+  const box = $('msgs'); 
+  box.innerHTML = '';
+  
+  // Displays introductory panel on initial clean drafts
+  if (!chat || chat.messages.length === 0) {
+    box.innerHTML = `
+      <div class="empty">
+        <div class="empty-glyph">⚡</div>
+        <div class="empty-head">Hardik AI System Workspace</div>
+        <div class="empty-sub">Input your secure cloud credentials inside settings to connect your direct developer gateway. Built for lightning-fast coding pipeline workflows.</div>
+        <div class="chips">
+          <button class="chip" onclick="quickSend('Write a clean responsive landing page layout template')">Landing Page Prototype 🌐</button>
+          <button class="chip" onclick="quickSend('Create a beautiful automated interactive CSS dashboard model')">Dynamic Layout Tool 📊</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+  
+  chat.messages.forEach(m => appendMessageNode(m.role, m.content, false));
+
+  // --- COMPLIANCE FOOTER DISCLAIMER (Shown when sliding down to the bottom) ---
+  const disclaimerEl = document.createElement('div');
+  disclaimerEl.className = 'sliding-disclaimer-wrapper';
+  disclaimerEl.innerHTML = `
+    <strong>Disclaimer:</strong> Hardik AI is a purely local client-side developer dashboard routing queries directly to secure models via user-supplied API credentials. The hosting provider does not generate, log, audit, store, or accept legal liability for any AI-generated outputs, structured scripts, or dynamic sandbox previews executed within this local viewport. Use at your own discretion.
+  `;
+  box.appendChild(disclaimerEl);
+
+  scrollToBottom();
+}
+
+function quickSend(t) { $('inp').value = t; sendMessage(); }
+
+function parseMarkdown(text) {
+  let outputHtml = escapeHTML(text);
+  const codeBlocks = [];
+  
+  outputHtml = outputHtml.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+    const id = 'cb_' + Math.random().toString(36).substr(2,9);
+    const displayLang = lang || 'text';
+    const isClientRenderable = ['html', 'svg', 'xml'].includes(displayLang.toLowerCase());
+    
+    let actionControls = `<button onclick="copyText('${id}')">Copy</button><button onclick="downloadCode('${id}', '${displayLang}')">Download</button>`;
+    if (isClientRenderable) {
+      actionControls = `<button onclick="previewHTML('${id}')" style="color:var(--accent); border-color:var(--accent)">▶ Execute Sandbox Preview</button>` + actionControls;
+    }
+    
+    codeBlocks.push(`
+    <div class="code-container">
+      <div class="code-header"><span class="code-lang">${displayLang}</span><div class="code-actions">${actionControls}</div></div>
+      <pre><code id="${id}">${code}</code></pre>
+    </div>`);
+    return `%%%CODE_INDEX_${codeBlocks.length - 1}%%%`;
+  });
+  
+  outputHtml = outputHtml.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+  outputHtml = outputHtml.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  outputHtml = outputHtml.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  outputHtml = outputHtml.replace(/^### (.*)$/gm, '<h3>$1</h3>');
+  outputHtml = outputHtml.replace(/^## (.*)$/gm, '<h2>$1</h2>');
+  outputHtml = outputHtml.replace(/^# (.*)$/gm, '<h1>$1</h1>');
+  outputHtml = outputHtml.replace(/^&gt; (.*)$/gm, '<blockquote>$1</blockquote>');
+  outputHtml = outputHtml.replace(/^\s*[-*] (.*)$/gm, '<li>$1</li>');
+  outputHtml = outputHtml.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+  outputHtml = outputHtml.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+  
+  codeBlocks.forEach((block, idx) => { outputHtml = outputHtml.replace(`%%%CODE_INDEX_${idx}%%r`, block); });
+  codeBlocks.forEach((block, idx) => { outputHtml = outputHtml.replace(`%%%CODE_INDEX_${idx}%%%`, block); });
+  
+  return `<p>${outputHtml}</p>`;
+}
+
+function appendMessageNode(role, content, animate = true) {
+  const isUser = role === 'user';
+  const id = 'msg_' + Date.now();
+  const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+  const div = document.createElement('div');
+  div.className = `msg-group ${isUser ? 'user' : 'ai'}`;
+  if (!animate) div.style.animation = 'none';
+  
+  div.innerHTML = `
+    <div class="msg-lbl">${isUser ? 'You' : 'Hardik AI'} · ${time}</div>
+    <div class="bubble" id="inner_${id}">${isUser ? `<p>${escapeHTML(content).replace(/\n/g, '<br>')}</p>` : parseMarkdown(content)}</div>
+    <div class="bub-acts">
+      <button class="bact" onclick="copyText('inner_${id}')">Copy Response</button>
+      ${!isUser ? `<button class="bact" onclick="retryMessage('${id}')">Recompile Request</button>` : ''}
+    </div>
+  `;
+  $('msgs').appendChild(div);
+  scrollToBottom();
+  return div;
+}
+
+function appendTypingNode() {
+  const div = document.createElement('div'); div.className = 'msg-group ai'; div.id = 'typing-node';
+  div.innerHTML = `<div class="msg-lbl">Hardik AI</div><div class="bubble" id="typing-bubble"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>`;
+  $('msgs').appendChild(div);
+  scrollToBottom();
+}
+
+function updateTypingNode(t) { const b = $('typing-bubble'); if (b) { b.innerHTML = parseMarkdown(t); scrollToBottom(); } }
+function removeTypingNode() { const n = $('typing-node'); if (n) n.remove(); }
+function scrollToBottom() { const m = $('msgs'); m.scrollTop = m.scrollHeight; }
+
+function copyText(elementId) {
+  const target = $(elementId);
+  if (target) { navigator.clipboard.writeText(target.innerText).then(() => showToast('Clipboard matrix cached ✓')); }
+}
+
+function handleEnter(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function autoGrow(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px'; }
+
+function setUIStatus(status, text) {
+  const d = $('sdot'); const t = $('stext'); d.className = 'sdot';
+  if (status === 'thinking') d.classList.add('thinking');
+  if (status === 'error') d.classList.add('offline');
+  t.textContent = text;
+}
+
+function setUIBusy(busy) {
+  AppState.isGenerating = busy;
+  $('send-btn').disabled = busy;
+  $('stop-btn').classList.toggle('on', busy);
+  
+  let subtitleText = busy ? 'Compiling Response Framework...' : 'Ready';
+  if(!busy && AppState.activeProjectId) {
+    const p = AppState.projects.find(proj => proj.id === AppState.activeProjectId);
+    if (p) subtitleText = `📁 Folder: ${p.name}`;
+  }
+  setUIStatus(busy ? 'thinking' : 'ready', subtitleText);
+}
+
+function abortGeneration() { if (AppState.abortController) AppState.abortController.abort(); }
+
+// --- API & STREAMING ENGINE ---
+async function processStream(response, onChunk) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder('utf-8');
+  let fullText = '';
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    
+    let parts = buffer.split('\n\n');
+    buffer = parts.pop(); 
+
+    for (let part of parts) {
+      let lines = part.split('\n');
+      for (let line of lines) {
+        if (line.startsWith('data: ')) {
+          let dataStr = line.slice(6).trim();
+          if (dataStr === '[DONE]') continue;
+          
+          try {
+            let json = JSON.parse(dataStr);
+            let content = json.choices?.[0]?.delta?.content || '';
+            if (content) {
+              fullText += content;
+              onChunk(fullText);
+            }
+          } catch (e) {
+            // Skips incomplete or malformed JSON chunks safely
+          }
+        }
+      }
+    }
+  }
+  return fullText;
+}
+
+async function fetchFromAI(messages) {
+  let endpoint, model, apiKey;
+  let activeProv = AppState.provider;
+
+  if (activeProv === 'auto') {
+    if (AppState.groqKey) activeProv = 'groq';
+    else if (AppState.hfKey) activeProv = 'hf';
+    else if (AppState.orKey) activeProv = 'openrouter';
+  }
+
+  if (activeProv === 'groq' && AppState.groqKey) { endpoint = CFG.GROQ_URL; model = AppState.groqModel || CFG.GROQ_MODEL; apiKey = AppState.groqKey; }
+  else if (activeProv === 'hf' && AppState.hfKey) { endpoint = CFG.HF_URL; model = AppState.hfModel || CFG.HF_MODEL; apiKey = AppState.hfKey; }
+  else if ((activeProv === 'openrouter' || activeProv === 'auto') && AppState.orKey) { endpoint = CFG.OR_URL; model = AppState.orModel || CFG.OR_MODEL; apiKey = AppState.orKey; }
+  else { throw new Error("No configured active API keys found. Open Configurations Dashboard (⚙️) to link tokens."); }
+
+  AppState.abortController = new AbortController();
+  const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` };
+  if (endpoint === CFG.OR_URL) { headers['HTTP-Referer'] = window.location.href; headers['X-Title'] = 'Hardik AI Client'; }
+
+  const response = await fetch(endpoint, {
+    method: 'POST', headers: headers,
+    body: JSON.stringify({ model: model, messages: [{ role: 'system', content: CFG.SYSTEM_PROMPT }, ...messages], temperature: 0.5, stream: true }),
+    signal: AppState.abortController.signal
+  });
+
+  if (!response.ok) {
+    let rawErr = await response.text();
+    try { let parsedErr = JSON.parse(rawErr); throw new Error(parsedErr.error?.message || "Connection failure context"); } catch(e) { throw new Error(`Server Status: ${response.status}`); }
+  }
+
+  const finalAnswer = await processStream(response, (currentText) => {
+    updateTypingNode(currentText);
+  });
+  
+  return finalAnswer;
+}
+
+// --- SUBMISSION CONTROLLERS ---
+async function sendMessage() {
+  if (AppState.isGenerating) return;
+  const inputEl = $('inp'); const queryText = inputEl.value.trim(); if (!queryText) return;
+  
+  if (!AppState.groqKey && !AppState.hfKey && !AppState.orKey) { showToast("An active credential token is required to make server requests.", true); openSt(); return; }
+
+  inputEl.value = ''; autoGrow(inputEl);
+  const splashUI = document.querySelector('.empty'); if (splashUI) splashUI.remove();
+
+  // Lazy Initialization: Actually create the chat metadata in localStorage ONLY when the first message is sent
+  let chat = getActiveChat(); 
+  if (!chat) { 
+    const newChatId = 'c_' + Date.now();
+    chat = { 
+      id: newChatId, 
+      title: queryText.length > 25 ? queryText.substring(0, 25) + "..." : queryText, 
+      messages: [], 
+      projId: AppState.activeProjectId, 
+      timestamp: Date.now() 
+    };
+    AppState.chats.unshift(chat);
+    AppState.activeChatId = newChatId;
+    localStorage.setItem('h_active_chat', newChatId);
+    persistChats();
+  }
+
+  chat.messages.push({ role: 'user', content: queryText }); persistChats();
+  appendMessageNode('user', queryText); appendTypingNode(); setUIBusy(true);
+
+  try {
+    const streamlinedHistory = chat.messages.map(m => ({ role: m.role, content: m.content }));
+    const systemReplyText = await fetchFromAI(streamlinedHistory);
+    removeTypingNode();
+    if (systemReplyText) { 
+      chat.messages.push({ role: 'assistant', content: systemReplyText }); 
+      persistChats(); 
+      renderMessages(); // Renders the message log and places disclaimer at bottom
+    }
+    else { throw new Error("Server transmission context terminated blank."); }
+  } catch (error) {
+    removeTypingNode();
+    if (error.name === 'AbortError') appendMessageNode('assistant', "*(Processing matrix cut off via user request)*");
+    else { showToast(error.message, true); setUIStatus('error', 'Execution Error'); appendMessageNode('assistant', `**Process Halting Error:** ${error.message}`); }
+  } finally { setUIBusy(false); }
+}
+
+function retryMessage(msgId) {
+  if (AppState.isGenerating) return;
+  const chat = getActiveChat(); if (!chat) return;
+  
+  const element = $(msgId); if (!element) return;
+  let targetSweepIterator = element;
+  while(targetSweepIterator) { let next = targetSweepIterator.nextElementSibling; targetSweepIterator.remove(); targetSweepIterator = next; }
+
+  // Exclude disclaimer wrapper from sweep calculation
+  const normalizedElementsCount = document.querySelectorAll('.msg-group').length;
+  chat.messages = chat.messages.slice(0, normalizedElementsCount); 
+  persistChats();
+
+  appendTypingNode(); setUIBusy(true);
+
+  fetchFromAI(chat.messages.map(m => ({ role: m.role, content: m.content }))).then(text => {
+    removeTypingNode(); chat.messages.push({ role: 'assistant', content: text }); persistChats(); renderMessages(); setUIBusy(false);
+  }).catch(err => { removeTypingNode(); if (err.name !== 'AbortError') appendMessageNode('assistant', `**Recompilation Error:** ${err.message}`); setUIBusy(false); });
+}
+
+window.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>
+
+```
