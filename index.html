@@ -1,9 +1,9 @@
-```html
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 <title>Hardik AI — Your Personal Coder</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <style>
@@ -45,11 +45,12 @@
   --sh1: 0 2px 10px rgba(0,0,0,.22); --sh2: 0 8px 30px rgba(0,0,0,.3); --sh3: 0 20px 60px rgba(0,0,0,.4);
 }
 
-html, body { height: 100%; font-family: var(--sans); background: var(--bg); color: var(--text); overflow: hidden; transition: background .3s, color .3s; }
+/* FIX: Changed 100vh to 100dvh to prevent cutting off on mobile browsers */
+html, body { height: 100dvh; font-family: var(--sans); background: var(--bg); color: var(--text); overflow: hidden; transition: background .3s, color .3s; }
 body::after { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 65% 55% at 55% 35%, var(--asoft), transparent 70%); pointer-events: none; z-index: 0; transition: background .3s; }
 
 /* --- APP LAYOUT --- */
-.app { position: relative; z-index: 1; display: flex; height: 100vh; overflow: hidden; }
+.app { position: relative; z-index: 1; display: flex; height: 100dvh; overflow: hidden; }
 
 /* --- ADAPTIVE SIDEBAR --- */
 .sidebar {
@@ -106,7 +107,7 @@ body::after { content: ''; position: fixed; inset: 0; background: radial-gradien
 .sb-item:hover .sb-item-del { opacity: 1; }
 .sb-item-del:hover { color: rgba(220, 53, 69, 0.9); }
 
-.sb-bottom { padding: 12px 10px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
+.sb-bottom { padding: 12px 10px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
 .sb-bottom-btn { padding: 10px 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 10px; color: var(--t2); font-size: 13px; background: none; border: none; text-align: left; font-family: var(--sans); transition: all .2s; width: 100%; font-weight: 500; }
 .sb-bottom-btn:hover { background: var(--asoft); color: var(--accent); }
 
@@ -200,10 +201,7 @@ body::after { content: ''; position: fixed; inset: 0; background: radial-gradien
   line-height: 1.5;
   box-shadow: var(--sh1);
 }
-.sliding-disclaimer-wrapper strong {
-  color: var(--t2);
-  font-weight: 600;
-}
+.sliding-disclaimer-wrapper strong { color: var(--t2); font-weight: 600; }
 
 /* --- INPUT FOOTPRINT --- */
 .input-zone { flex-shrink: 0; padding: 12px 28px 24px; background: rgba(245,240,232,.65); backdrop-filter: blur(20px); border-top: 1px solid var(--border); transition: background .3s, border-color .3s; }
@@ -232,30 +230,41 @@ textarea#inp::placeholder { color: var(--t4); }
 .mtag { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--t3); }
 .mdot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
 
-/* --- MODALS --- */
-.modal-overlay { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,.5); backdrop-filter: blur(5px); opacity: 0; pointer-events: none; transition: opacity .3s; display: flex; align-items: center; justify-content: center; }
+/* --- MODALS (FIXED FOR OVERFLOW AND CUT-OFFS) --- */
+.modal-overlay { 
+  position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,.5); backdrop-filter: blur(5px); 
+  opacity: 0; pointer-events: none; transition: opacity .3s; 
+  display: flex; align-items: center; justify-content: center; padding: 16px; 
+}
 .modal-overlay.open { opacity: 1; pointer-events: all; }
 
-.modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; box-shadow: var(--sh3); padding: 32px; display: flex; flex-direction: column; gap: 24px; animation: scaleIn .3s cubic-bezier(.22,1,.36,1); max-height: 85vh; overflow-y: auto; width: 90%; max-width: 520px; }
+.modal-card { 
+  background: var(--surface); border: 1px solid var(--border); border-radius: 24px; box-shadow: var(--sh3); 
+  padding: 24px; display: flex; flex-direction: column; gap: 20px; 
+  animation: scaleIn .3s cubic-bezier(.22,1,.36,1); 
+  width: 100%; max-width: 520px; 
+  max-height: 85dvh; /* Limits height to 85% of screen */
+  overflow-y: auto; /* Adds scrollbar inside modal if content is too tall */
+}
 @keyframes scaleIn { from { opacity: 0; transform: scale(.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
-.m-head { display: flex; align-items: center; justify-content: space-between; }
+.m-head { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
 .m-title { font-size: 20px; font-weight: 700; color: var(--text); }
-.m-close { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: transparent; color: var(--t3); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+.m-close { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: transparent; color: var(--t3); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all .2s; flex-shrink: 0; }
 .m-close:hover { background: var(--surface2); color: var(--text); }
 
-#preview-frame { flex: 1; border: 1px solid var(--border); border-radius: 12px; background: #fff; width: 100%; min-height: 65vh; }
+#preview-frame { flex: 1; border: 1px solid var(--border); border-radius: 12px; background: #fff; width: 100%; min-height: 65dvh; }
 
-.st-sec { display: flex; flex-direction: column; gap: 12px; }
+.st-sec { display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
 .st-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: var(--t3); }
 
-.theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.tcard { padding: 12px; border-radius: 14px; border: 2px solid var(--border); cursor: pointer; transition: all .2s; display: flex; flex-direction: column; gap: 8px; }
+.theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tcard { padding: 10px; border-radius: 14px; border: 2px solid var(--border); cursor: pointer; transition: all .2s; display: flex; flex-direction: column; gap: 6px; }
 .tcard:hover { border-color: var(--border-s); }
 .tcard.active { border-color: var(--accent); background: var(--asoft); }
-.tswatch { width: 100%; height: 20px; border-radius: 6px; display: flex; gap: 4px; overflow: hidden;}
+.tswatch { width: 100%; height: 16px; border-radius: 6px; display: flex; gap: 4px; overflow: hidden;}
 .tswatch span { flex: 1; height: 100%; }
-.tname { font-size: 13px; color: var(--t2); font-weight: 500;}
+.tname { font-size: 12px; color: var(--t2); font-weight: 500;}
 
 .key-grp { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
 .key-row { display: flex; align-items: center; justify-content: space-between; }
@@ -275,63 +284,43 @@ textarea#inp::placeholder { color: var(--t4); }
 .tog:hover { border-color: var(--border-s); color: var(--text); }
 .tog.active { border-color: var(--accent); background: var(--accent); color: #fff; box-shadow: var(--sh1); }
 
-.save-btn { width: 100%; padding: 14px; background: var(--text); border: none; border-radius: 14px; color: var(--bg); font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; transition: all .2s; margin-top: 10px;}
+.save-btn { width: 100%; padding: 14px; background: var(--text); border: none; border-radius: 14px; color: var(--bg); font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; transition: all .2s; margin-top: 5px; flex-shrink: 0;}
 .save-btn:hover { opacity: .9; transform: translateY(-1px); box-shadow: var(--sh2); }
 
-.proj-new-form { display: flex; gap: 10px; }
+.proj-new-form { display: flex; gap: 10px; flex-shrink: 0;}
 .proj-inp { flex: 1; padding: 12px 16px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-family: var(--sans); font-size: 14px; outline: none; transition: all .2s; }
 .proj-inp:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--asoft); }
 .proj-add-btn { padding: 0 20px; background: var(--text); border: none; border-radius: 12px; color: var(--bg); font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; transition: all .2s; }
 .proj-add-btn:hover { opacity: .9; transform: translateY(-1px); }
 
-.proj-list { display: flex; flex-direction: column; gap: 10px; }
-.proj-item { padding: 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 14px; }
+.proj-list { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-right: 4px;}
+.proj-item { padding: 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 12px; }
 .proj-item:hover { border-color: var(--accent); box-shadow: var(--sh1); transform: translateY(-2px); }
 .proj-item.active-project-card { border-color: var(--accent); background: var(--asoft); }
-.proj-item-icon { font-size: 24px; }
+.proj-item-icon { font-size: 20px; }
 .proj-item-info { flex: 1; }
-.proj-item-name { font-size: 15px; color: var(--text); font-weight: 600; margin-bottom: 4px; }
-.proj-item-meta { font-size: 12px; color: var(--t3); }
-.proj-actions-layout { display: flex; gap: 8px; }
-.proj-act { padding: 6px 14px; font-size: 11.5px; border: 1px solid var(--border); border-radius: 100px; background: var(--surface); color: var(--t2); cursor: pointer; transition: all .2s; font-family: var(--sans); font-weight: 500;}
+.proj-item-name { font-size: 14px; color: var(--text); font-weight: 600; margin-bottom: 2px; }
+.proj-item-meta { font-size: 11px; color: var(--t3); }
+.proj-actions-layout { display: flex; gap: 6px; }
+.proj-act { padding: 6px 12px; font-size: 11px; border: 1px solid var(--border); border-radius: 100px; background: var(--surface); color: var(--t2); cursor: pointer; transition: all .2s; font-family: var(--sans); font-weight: 500;}
 .proj-act:hover { color: var(--accent); border-color: var(--accent); }
 .proj-act.del:hover { color: rgba(220, 53, 69, 1); border-color: rgba(220, 53, 69, 0.4); background: rgba(220, 53, 69, 0.1); }
-.proj-empty { text-align: center; padding: 30px; color: var(--t3); font-size: 14px; line-height: 1.6; }
+.proj-empty { text-align: center; padding: 20px; color: var(--t3); font-size: 13px; line-height: 1.6; }
 
 /* TOAST */
 #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); padding: 10px 24px; background: var(--text); color: var(--bg); border-radius: 100px; font-size: 13px; font-weight: 500; box-shadow: var(--sh3); z-index: 999; opacity: 0; transition: all .3s cubic-bezier(.22,1,.36,1); pointer-events: none; white-space: nowrap; }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* --- RESPONSIVE WORK --- */
+/* --- RESPONSIVE FIXES --- */
 @media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    z-index: 250;
-    width: 280px;
-    transform: translateX(-100%);
-    box-shadow: none;
-  }
-  .sidebar.active {
-    transform: translateX(0);
-    box-shadow: var(--sh3);
-  }
-  .sidebar-backdrop {
-    display: block;
-    opacity: 0;
-  }
-  .sidebar-backdrop.active {
-    opacity: 1;
-    pointer-events: all;
-  }
-  .msgs {
-    padding: 16px 16px 20px;
-  }
-  .bubble {
-    max-width: 95%;
-  }
+  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 250; width: 280px; transform: translateX(-100%); box-shadow: none; height: 100dvh; }
+  .sidebar.active { transform: translateX(0); box-shadow: var(--sh3); }
+  .sidebar-backdrop { display: block; opacity: 0; }
+  .sidebar-backdrop.active { opacity: 1; pointer-events: all; }
+  .msgs { padding: 16px 16px 20px; }
+  .bubble { max-width: 95%; }
+  .modal-card { padding: 16px; width: 100%; max-height: 90dvh;}
+  .input-zone { padding: 12px 16px 20px; }
 }
 </style>
 </head>
@@ -340,13 +329,13 @@ textarea#inp::placeholder { color: var(--t4); }
 <!-- TOAST -->
 <div id="toast"></div>
 
-<!-- COMPATIBILITY-FIXED INTERACTIVE PREVIEW MODAL -->
+<!-- CODE PREVIEW MODAL -->
 <div class="modal-overlay" id="previewModal" onclick="if(event.target===this) closePreview()">
-  <div class="modal-card" style="max-width: 95vw; width: 1100px; padding: 20px;">
+  <div class="modal-card" style="max-width: 95vw; width: 1100px;">
     <div class="m-head">
       <span class="m-title">Live Code Preview Sandbox</span>
       <div style="display:flex; gap: 8px;">
-         <button class="bact" onclick="openPreviewNewTab()" style="font-size:13px; padding:6px 16px;">↗ Open in New Tab</button>
+         <button class="bact" onclick="openPreviewNewTab()" style="font-size:12px; padding:6px 12px;">↗ Open in Tab</button>
          <button class="m-close" onclick="closePreview()">×</button>
       </div>
     </div>
@@ -402,7 +391,7 @@ textarea#inp::placeholder { color: var(--t4); }
           <input class="kinp-model" type="text" id="groq-model-inp" placeholder="llama-3.3-70b-versatile">
           <input class="kinp-key" type="password" id="groq-inp" placeholder="Paste your gsk_ key...">
         </div>
-        <button class="api-test-btn" onclick="testConnection('groq')">⚡ Verify Groq Connection</button>
+        <button class="api-test-btn" onclick="testConnection('groq')">⚡ Verify Groq</button>
       </div>
       
       <!-- HUGGING FACE ROUTER -->
@@ -415,7 +404,7 @@ textarea#inp::placeholder { color: var(--t4); }
           <input class="kinp-model" type="text" id="hf-model-inp" placeholder="meta-llama/Llama-3.3-70B-Instruct:groq">
           <input class="kinp-key" type="password" id="hf-inp" placeholder="Paste your hf_ token...">
         </div>
-        <button class="api-test-btn" onclick="testConnection('hf')">⚡ Verify Hugging Face Router</button>
+        <button class="api-test-btn" onclick="testConnection('hf')">⚡ Verify HF Router</button>
       </div>
 
       <!-- OPENROUTER DIRECT -->
@@ -569,10 +558,10 @@ let AppState = {
   hfModel: '',
   orKey: '',
   orModel: '',
-  chats: [], // Each chat: { id, title, messages, projId, timestamp }
-  projects: [], // Each project: { id, name }
-  activeChatId: null, // If null, the UI represents an empty / unsaved draft thread
-  activeProjectId: null, // Tracks currently selected folder context (null = All / Root)
+  chats: [], 
+  projects: [], 
+  activeChatId: null, 
+  activeProjectId: null, 
   isGenerating: false,
   abortController: null
 };
@@ -623,21 +612,18 @@ function initApp() {
   updateProviderLabel();
   updateStatusIndicators();
 
-  // Restore responsive sidebar layout state if preferred
   const isSidebarCollapsed = localStorage.getItem('h_side_coll') === 'true';
-  $('sidebar').classList.toggle('collapsed', isSidebarCollapsed);
+  if (window.innerWidth > 768) {
+     $('sidebar').classList.toggle('collapsed', isSidebarCollapsed);
+  }
 
-  // Restore conversation draft state
   const lastActive = localStorage.getItem('h_active_chat');
-  
-  // Clean up any empty chats that shouldn't have been saved
   AppState.chats = AppState.chats.filter(c => c.messages && c.messages.length > 0);
   persistChats();
 
   if (lastActive && AppState.chats.find(c => c.id === lastActive)) {
     switchChat(lastActive);
   } else {
-    // Start with a clean draft chat matching active workspace parameters
     createNewChatDraft();
   }
 }
@@ -820,7 +806,8 @@ function selectProjectScope(projId) {
     showToast(`Workspace Filter: ${p ? p.name : "Active Folder"}`);
   }
   
-  // Switch directory context: Load the first message within this scope, or present a clean slate
+  closeProj();
+  
   const matchingChats = getFilteredChats();
   if (matchingChats.length > 0) {
     switchChat(matchingChats[0].id);
@@ -831,7 +818,6 @@ function selectProjectScope(projId) {
 }
 
 function getFilteredChats() {
-  // Only return chats with messages (saved chats)
   const savedChats = AppState.chats.filter(c => c.messages && c.messages.length > 0);
   if (AppState.activeProjectId === null) {
     return savedChats;
@@ -860,7 +846,6 @@ function deleteProject(id) {
   AppState.projects = AppState.projects.filter(p => p.id !== id);
   localStorage.setItem('h_projects', JSON.stringify(AppState.projects));
   
-  // Unlink associated project chats
   AppState.chats.forEach(c => { if (c.projId === id) c.projId = null; });
   persistChats();
 
@@ -877,7 +862,6 @@ function renderProjectsList() {
   const list = $('proj-list');
   list.innerHTML = '';
   
-  // "All Chats" Switcher option inside the management modal
   const rootBtn = document.createElement('div');
   rootBtn.className = 'proj-item' + (AppState.activeProjectId === null ? ' active-project-card' : '');
   rootBtn.onclick = () => { selectProjectScope(null); closeProj(); };
@@ -914,9 +898,8 @@ function renderProjectsList() {
 function openProj() { renderProjectsList(); $('projModal').classList.add('open'); }
 function closeProj() { $('projModal').classList.remove('open'); }
 
-// --- CONVERSATION DRAFT THREAD (PREVENTS REDUNDANCY) ---
+// --- CONVERSATION DRAFT THREAD ---
 function createNewChatDraft() {
-  // Sets draft state instantly to present a clean workspace context
   AppState.activeChatId = null;
   localStorage.removeItem('h_active_chat');
   
@@ -978,11 +961,8 @@ function deleteChat(id, e) {
 function toggleSidebar() {
   if (window.innerWidth <= 768) {
     const isSidebarActive = $('sidebar').classList.contains('active');
-    if (isSidebarActive) {
-      closeMobileSidebar();
-    } else {
-      openMobileSidebar();
-    }
+    if (isSidebarActive) closeMobileSidebar();
+    else openMobileSidebar();
   } else {
     const coll = $('sidebar').classList.toggle('collapsed');
     localStorage.setItem('h_side_coll', coll ? 'true' : 'false');
@@ -993,18 +973,15 @@ function openMobileSidebar() {
   $('sidebar').classList.add('active');
   $('sidebarBackdrop').classList.add('active');
 }
-
 function closeMobileSidebar() {
   $('sidebar').classList.remove('active');
   $('sidebarBackdrop').classList.remove('active');
 }
 
 function renderSidebar() {
-  // 1. Render FOLDERS Workspace Switcher Quicklist
   const folderContainer = $('sb-folder-quicklist');
   folderContainer.innerHTML = '';
   
-  // All Chats Workspace Toggle Button
   const rootBtn = document.createElement('div');
   rootBtn.className = 'sb-item' + (AppState.activeProjectId === null ? ' active' : '');
   rootBtn.onclick = () => selectProjectScope(null);
@@ -1019,11 +996,10 @@ function renderSidebar() {
     folderContainer.appendChild(div);
   });
 
-  // 2. Render CHATS within current focused folder context
   const list = $('sb-list'); 
   list.innerHTML = '';
   
-  const matchingChats = getFilteredChats(); // Grabs ONLY non-empty saved chats in current folder scope
+  const matchingChats = getFilteredChats(); 
   $('chats-section-title').innerHTML = `Saved Chats <span class="sb-section-badge">${matchingChats.length}</span>`;
 
   if (matchingChats.length === 0) {
@@ -1100,7 +1076,6 @@ function renderMessages() {
   const box = $('msgs'); 
   box.innerHTML = '';
   
-  // Displays introductory panel on initial clean drafts
   if (!chat || chat.messages.length === 0) {
     box.innerHTML = `
       <div class="empty">
@@ -1118,7 +1093,7 @@ function renderMessages() {
   
   chat.messages.forEach(m => appendMessageNode(m.role, m.content, false));
 
-  // --- COMPLIANCE FOOTER DISCLAIMER (Shown when sliding down to the bottom) ---
+  // COMPLIANCE FOOTER DISCLAIMER (Shown when sliding down to the bottom)
   const disclaimerEl = document.createElement('div');
   disclaimerEl.className = 'sliding-disclaimer-wrapper';
   disclaimerEl.innerHTML = `
@@ -1186,7 +1161,16 @@ function appendMessageNode(role, content, animate = true) {
       ${!isUser ? `<button class="bact" onclick="retryMessage('${id}')">Recompile Request</button>` : ''}
     </div>
   `;
-  $('msgs').appendChild(div);
+  
+  // Insert before the disclaimer if it exists
+  const box = $('msgs');
+  const disclaimer = box.querySelector('.sliding-disclaimer-wrapper');
+  if (disclaimer) {
+    box.insertBefore(div, disclaimer);
+  } else {
+    box.appendChild(div);
+  }
+  
   scrollToBottom();
   return div;
 }
@@ -1194,7 +1178,10 @@ function appendMessageNode(role, content, animate = true) {
 function appendTypingNode() {
   const div = document.createElement('div'); div.className = 'msg-group ai'; div.id = 'typing-node';
   div.innerHTML = `<div class="msg-lbl">Hardik AI</div><div class="bubble" id="typing-bubble"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>`;
-  $('msgs').appendChild(div);
+  const box = $('msgs');
+  const disclaimer = box.querySelector('.sliding-disclaimer-wrapper');
+  if (disclaimer) box.insertBefore(div, disclaimer);
+  else box.appendChild(div);
   scrollToBottom();
 }
 
@@ -1334,7 +1321,13 @@ async function sendMessage() {
     AppState.activeChatId = newChatId;
     localStorage.setItem('h_active_chat', newChatId);
     persistChats();
+    // Re-render sidebar to show the newly saved chat
+    renderSidebar();
   }
+
+  // Hide the disclaimer temporarily while typing/answering
+  const disclaimer = document.querySelector('.sliding-disclaimer-wrapper');
+  if(disclaimer) disclaimer.style.display = 'none';
 
   chat.messages.push({ role: 'user', content: queryText }); persistChats();
   appendMessageNode('user', queryText); appendTypingNode(); setUIBusy(true);
@@ -1346,13 +1339,14 @@ async function sendMessage() {
     if (systemReplyText) { 
       chat.messages.push({ role: 'assistant', content: systemReplyText }); 
       persistChats(); 
-      renderMessages(); // Renders the message log and places disclaimer at bottom
+      renderMessages(); 
     }
     else { throw new Error("Server transmission context terminated blank."); }
   } catch (error) {
     removeTypingNode();
     if (error.name === 'AbortError') appendMessageNode('assistant', "*(Processing matrix cut off via user request)*");
     else { showToast(error.message, true); setUIStatus('error', 'Execution Error'); appendMessageNode('assistant', `**Process Halting Error:** ${error.message}`); }
+    if(disclaimer) disclaimer.style.display = 'block';
   } finally { setUIBusy(false); }
 }
 
@@ -1362,18 +1356,25 @@ function retryMessage(msgId) {
   
   const element = $(msgId); if (!element) return;
   let targetSweepIterator = element;
-  while(targetSweepIterator) { let next = targetSweepIterator.nextElementSibling; targetSweepIterator.remove(); targetSweepIterator = next; }
+  while(targetSweepIterator) { 
+    if(targetSweepIterator.classList.contains('sliding-disclaimer-wrapper')) break;
+    let next = targetSweepIterator.nextElementSibling; 
+    targetSweepIterator.remove(); 
+    targetSweepIterator = next; 
+  }
 
-  // Exclude disclaimer wrapper from sweep calculation
   const normalizedElementsCount = document.querySelectorAll('.msg-group').length;
   chat.messages = chat.messages.slice(0, normalizedElementsCount); 
   persistChats();
+
+  const disclaimer = document.querySelector('.sliding-disclaimer-wrapper');
+  if(disclaimer) disclaimer.style.display = 'none';
 
   appendTypingNode(); setUIBusy(true);
 
   fetchFromAI(chat.messages.map(m => ({ role: m.role, content: m.content }))).then(text => {
     removeTypingNode(); chat.messages.push({ role: 'assistant', content: text }); persistChats(); renderMessages(); setUIBusy(false);
-  }).catch(err => { removeTypingNode(); if (err.name !== 'AbortError') appendMessageNode('assistant', `**Recompilation Error:** ${err.message}`); setUIBusy(false); });
+  }).catch(err => { removeTypingNode(); if (err.name !== 'AbortError') appendMessageNode('assistant', `**Recompilation Error:** ${err.message}`); setUIBusy(false); if(disclaimer) disclaimer.style.display = 'block'; });
 }
 
 window.addEventListener('DOMContentLoaded', initApp);
@@ -1381,4 +1382,6 @@ window.addEventListener('DOMContentLoaded', initApp);
 </body>
 </html>
 
-```
+
+
+
